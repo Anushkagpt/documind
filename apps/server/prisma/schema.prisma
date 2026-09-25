@@ -1,0 +1,58 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  documents    Document[]
+  queryLogs    QueryLog[]
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title      String
+  sourceType String   @default("text")
+  status     String   @default("processing") // processing | ready | failed
+  chunkCount Int      @default(0)
+  error      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  chunks     Chunk[]
+
+  @@index([userId])
+}
+
+model Chunk {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  index      Int
+  text       String
+  embedding  Float[]
+  tokenCount Int      @default(0)
+
+  @@index([documentId])
+}
+
+model QueryLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question  String
+  answer    String
+  provider  String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}

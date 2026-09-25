@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: documind
+      POSTGRES_PASSWORD: documind
+      POSTGRES_DB: documind
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U documind"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./apps/server
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgresql://documind:documind@postgres:5432/documind
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: change-me-in-production
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      WEB_ORIGIN: http://localhost:8080
+    command: sh -c "npx prisma db push && npm run db:seed && npm run start"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build: ./apps/web
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
