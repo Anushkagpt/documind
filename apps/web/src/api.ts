@@ -1,4 +1,5 @@
 const TOKEN_KEY = 'documind_token';
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -36,7 +37,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
   if (options.body && typeof options.body === 'string') headers['Content-Type'] = 'application/json';
-  const response = await fetch(`/api${path}`, { ...options, headers });
+  const response = await fetch(`${API_BASE}/api${path}`, { ...options, headers });
   if (response.status === 401) {
     setToken(null);
     window.location.href = '/login';
