@@ -5,6 +5,7 @@ PDF documents; DocuMind chunks them, embeds every chunk, and answers questions
 with cited sources.
 
 ![Stack](https://img.shields.io/badge/stack-React%20%C2%B7%20Node%20%C2%B7%20Postgres%20%C2%B7%20Redis-7c6cf5)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/088c1b44-f95d-4527-91d6-2b5ae44e8fac/deploy-status)](https://app.netlify.com/projects/documind-code/deploys)
 
 ## Features
 
